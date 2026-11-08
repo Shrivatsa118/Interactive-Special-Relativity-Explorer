@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Relativistic Journey — Spacetime Dilation & Stellar Aberration</title>
+<style>
+/* ── Design System & Modern Spaceflight Interface ── */
+:root {
+  --bg-deep: #02040a;
+  --panel-bg: rgba(7, 13, 24, 0.78);
+  --panel-border: rgba(90, 160, 240, 0.18);
+  --panel-border-focus: rgba(120, 200, 255, 0.45);
+  --text-main: #e6edf8;
+  --text-muted: #8ea7c4;
+  --text-dim: #5c7490;
+  --accent-cyan: #5cd0ff;
+  --accent-blue: #3b82f6;
+  --accent-amber: #f59e0b;
+  --accent-green: #10b981;
+  --glow-cyan: 0 0 16px rgba(92, 208, 255, 0.28);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#viewport {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+canvas {
+  display: block;
+  outline: none;
+}
+
+/* ── Top Navigation & Mission Header ── */
+.top-header {
+  position: fixed;
+  top: 16px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.nav-return-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(8, 16, 32, 0.85);
+  border: 1px solid var(--panel-border);
+  color: #a5d2ff;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.nav-return-btn:hover {
+  background: rgba(20, 48, 92, 0.95);
+  color: #ffffff;
+  border-color: rgba(130, 205, 255, 0.6);
+  box-shadow: var(--glow-cyan);
+  transform: translateY(-1px);
+}
+
+.header-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.header-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: #d8eaff;
+  text-shadow: 0 0 16px rgba(80, 160, 255, 0.35);
+}
+
+.header-subtitle {
+  font-size: 9.5px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(8, 16, 32, 0.85);
+  border: 1px solid var(--panel-border);
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--accent-cyan);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.status-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
+.status-indicator.pulse {
+  animation: pulse-dot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+.info-icon-btn {
+  background: rgba(8, 16, 32, 0.85);
+  border: 1px solid var(--panel-border);
+  color: #a5d2ff;
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+}
+
+.info-icon-btn:hover {
+  background: rgba(25, 55, 105, 0.95);
+  color: #fff;
+  border-color: rgba(130, 205, 255, 0.6);
+  transform: translateY(-1px);
+}
+
+/* ── Mobile Control Deck Toggle ── */
+.mobile-deck-toggle {
+  display: none;
+  position: fixed;
+  top: 68px;
+  left: 18px;
+  z-index: 35;
+  background: rgba(8, 16, 32, 0.92);
+  border: 1px solid var(--panel-border);
+  color: var(--accent-cyan);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+}
+
+/* ── Left Floating Flight Deck (Minimal, Elegant, Structured) ── */
+.flight-deck {
+  position: fixed;
+  top: 72px;
+  left: 24px;
+  width: 330px;
+  max-height: calc(100vh - 160px);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  z-index: 25;
+  padding: 16px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 160, 240, 0.3) transparent;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.deck-section {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid rgba(90, 160, 240, 0.12);
+}
+
+.deck-section:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.section-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 9px;
+}
+
+/* ── Prominent Reference Frame Switcher ── */
+.frame-selector-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.frame-btn {
+  background: rgba(12, 22, 40, 0.8);
+  border: 1px solid rgba(90, 160, 240, 0.2);
+  border-radius: var(--radius-md);
+  padding: 10px 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  outline: none;
+}
+
+.frame-btn:hover {
+  background: rgba(20, 38, 70, 0.85);
+  border-color: rgba(120, 190, 255, 0.4);
+  color: var(--text-main);
+}
+
+.frame-btn.active {
+  background: linear-gradient(135deg, rgba(24, 68, 120, 0.85), rgba(16, 42, 84, 0.95));
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  box-shadow: inset 0 0 16px rgba(92, 208, 255, 0.2), 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.frame-btn-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.frame-btn-duration {
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.frame-btn.active .frame-btn-duration {
+  color: #9de2ff;
+  text-shadow: 0 0 8px rgba(157, 226, 255, 0.5);
+}
+
+/* ── Velocity & Lorentz Controls ── */
+.slider-container {
+  margin: 6px 0 10px;
+}
+
+.slider-track-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(30, 60, 105, 0.6);
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.presets-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.preset-pill {
+  background: rgba(12, 24, 45, 0.7);
+  border: 1px solid rgba(80, 140, 220, 0.2);
+  color: var(--text-muted);
+  padding: 5px 0;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s ease;
+}
+
+.preset-pill:hover {
+  background: rgba(24, 48, 88, 0.85);
+  color: var(--text-main);
+  border-color: rgba(120, 185, 255, 0.45);
+}
+
+.preset-pill.active {
+  background: rgba(32, 78, 145, 0.85);
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(92, 208, 255, 0.25);
+}
+
+/* ── Compact Key Metric Row ── */
+.physics-metric-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.metric-card {
+  background: rgba(10, 20, 36, 0.65);
+  border: 1px solid rgba(90, 160, 240, 0.14);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.metric-tag {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.metric-val {
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+/* ── Destination & Earth Duration Controls ── */
+.control-grid-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.select-dest {
+  width: 100%;
+  background: rgba(11, 22, 40, 0.85);
+  border: 1px solid rgba(90, 160, 240, 0.22);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  padding: 7px 10px;
+  font-size: 11.5px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.select-dest:focus {
+  border-color: var(--panel-border-focus);
+}
+
+.duration-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(11, 22, 40, 0.85);
+  border: 1px solid rgba(90, 160, 240, 0.22);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+}
+
+.duration-input-wrap input {
+  width: 44px;
+  background: transparent;
+  border: none;
+  color: var(--accent-cyan);
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  outline: none;
+}
+
+.duration-unit {
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+/* ── Primary Action Controls ── */
+.actions-row {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.btn-action {
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 9px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.btn-start {
+  background: linear-gradient(135deg, #1d68c4, #124488);
+  border-color: rgba(120, 195, 255, 0.4);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(24, 96, 185, 0.35);
+}
+
+.btn-start:hover {
+  background: linear-gradient(135deg, #257fe8, #1855a8);
+  box-shadow: var(--glow-cyan);
+  transform: translateY(-1px);
+}
+
+.btn-pause {
+  background: rgba(16, 28, 50, 0.8);
+  border-color: rgba(90, 160, 240, 0.25);
+  color: var(--text-muted);
+}
+
+.btn-pause:hover {
+  background: rgba(25, 45, 80, 0.9);
+  color: var(--text-main);
+  border-color: rgba(120, 190, 255, 0.45);
+}
+
+.btn-reset {
+  background: rgba(16, 28, 50, 0.8);
+  border-color: rgba(90, 160, 240, 0.25);
+  color: var(--text-muted);
+}
+
+.btn-reset:hover {
+  background: rgba(25, 45, 80, 0.9);
+  color: var(--text-main);
+  border-color: rgba(120, 190, 255, 0.45);
+}
+
+/* ── Camera View Switcher ── */
+.cam-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.cam-btn {
+  background: rgba(12, 24, 45, 0.7);
+  border: 1px solid rgba(80, 140, 220, 0.2);
+  color: var(--text-muted);
+  padding: 6px 0;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.18s ease;
+  outline: none;
+}
+
+.cam-btn:hover {
+  background: rgba(24, 48, 88, 0.85);
+  color: var(--text-main);
+  border-color: rgba(120, 185, 255, 0.45);
+}
+
+.cam-btn.active {
+  background: rgba(28, 68, 128, 0.85);
+  border-color: var(--accent-cyan);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(92, 208, 255, 0.25);
+}
+
+/* ── Bottom Telemetry Console (Restrained, Focused, Cinematic) ── */
+.bottom-console {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(840px, calc(100vw - 32px));
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+  z-index: 25;
+  padding: 14px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Scrubbable Progress Timeline */
+.timeline-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeline-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.timeline-phase {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.timeline-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(20, 38, 70, 0.5);
+  border: 1px solid rgba(80, 140, 220, 0.25);
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: visible;
+}
+
+.timeline-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #3b82f6, #5cd0ff);
+  border-radius: 3px;
+  box-shadow: 0 0 12px rgba(92, 208, 255, 0.4);
+  transition: width 0.05s linear;
+}
+
+.timeline-marker {
+  position: absolute;
+  top: 50%;
+  right: -5px;
+  transform: translateY(-50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px #5cd0ff;
+}
+
+/* Dual Reference Frame Chronometers */
+.clocks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.clock-panel {
+  background: rgba(10, 18, 34, 0.6);
+  border: 1px solid rgba(80, 150, 240, 0.15);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  transition: border-color 0.25s ease;
+}
+
+.clock-panel.active-frame {
+  border-color: rgba(92, 208, 255, 0.45);
+  background: rgba(14, 26, 48, 0.75);
+  box-shadow: inset 0 0 20px rgba(92, 208, 255, 0.08);
+}
+
+.clock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.clock-name {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.clock-badge {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(40, 80, 140, 0.35);
+  color: #9acaff;
+  border: 1px solid rgba(120, 180, 255, 0.2);
+}
+
+.clock-digits-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.clock-time-main {
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.clock-time-sub {
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.clock-meta-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.clock-meta-row b {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Summary Physics Strip */
+.comparison-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: var(--text-dim);
+  border-top: 1px solid rgba(80, 140, 220, 0.12);
+  padding-top: 8px;
+}
+
+.comparison-strip span b {
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+/* ── Physics Drawer (Slide-In Right Panel) ── */
+.physics-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 100%;
+  background: rgba(6, 12, 22, 0.94);
+  border-left: 1px solid var(--panel-border);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 50;
+  padding: 28px 24px;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  box-shadow: -16px 0 48px rgba(0, 0, 0, 0.6);
+}
+
+.physics-drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(80, 140, 220, 0.18);
+}
+
+.drawer-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.drawer-close {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.2s;
+}
+
+.drawer-close:hover {
+  color: #ffffff;
+}
+
+.drawer-block {
+  margin-bottom: 20px;
+}
+
+.drawer-block h4 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  margin-bottom: 6px;
+}
+
+.drawer-block p {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.formula-box {
+  background: rgba(12, 24, 46, 0.85);
+  border: 1px solid rgba(90, 160, 240, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 11.5px;
+  color: #bce4ff;
+  margin: 6px 0 10px;
+}
+
+/* ── Minimalist Arrival Debrief Modal ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(2, 4, 10, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  width: min(480px, calc(100vw - 32px));
+  background: rgba(8, 16, 30, 0.94);
+  border: 1px solid var(--panel-border-focus);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), var(--glow-cyan);
+  text-align: center;
+}
+
+.modal-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #ffffff;
+}
+
+.modal-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  margin-bottom: 18px;
+}
+
+.modal-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.modal-stat-box {
+  background: rgba(12, 24, 46, 0.75);
+  border: 1px solid rgba(80, 140, 220, 0.2);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  text-align: left;
+}
+
+.modal-stat-label {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.8px;
+}
+
+.modal-stat-val {
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 2px;
+}
+
+.modal-note {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: rgba(16, 34, 64, 0.4);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.modal-btn {
+  padding: 8px 20px;
+  border-radius: var(--radius-md);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.modal-btn-replay {
+  background: linear-gradient(135deg, #1d68c4, #124488);
+  color: #fff;
+  border-color: rgba(120, 195, 255, 0.5);
+}
+
+.modal-btn-close {
+  background: rgba(18, 32, 56, 0.8);
+  color: var(--text-muted);
+  border-color: rgba(80, 140, 220, 0.25);
+}
+
+/* ── Minimal Cockpit HUD overlay (when Cockpit View active) ── */
+.cockpit-hud {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cockpit-hud::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(92, 208, 255, 0.35);
+}
+
+.cockpit-hud::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(92, 208, 255, 0.35);
+}
+
+.cockpit-reticle-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  border: 1px solid rgba(92, 208, 255, 0.45);
+  border-radius: 50%;
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 768px) {
+  .top-header {
+    padding: 0 14px;
+    top: 12px;
+  }
+  .header-subtitle {
+    display: none;
+  }
+  .header-title {
+    font-size: 11.5px;
+    letter-spacing: 2px;
+  }
+  .mobile-deck-toggle {
+    display: block;
+  }
+  .flight-deck {
+    top: 60px;
+    left: 14px;
+    width: calc(100vw - 28px);
+    max-height: calc(100vh - 200px);
+    transform: translateY(-110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flight-deck.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .bottom-console {
+    bottom: 10px;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .clocks-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .clock-time-main {
+    font-size: 16px;
+  }
+  .comparison-strip {
+    display: none;
+  }
+  .physics-drawer {
+    width: 100vw;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="viewport"></div>
+
+<!-- Minimal Cockpit Reticle -->
+<div class="cockpit-hud" id="cockpitHud">
+  <div class="cockpit-reticle-ring"></div>
+</div>
+
+<!-- Top Navigation & Mission Header -->
+<header class="top-header">
+  <a href="1_Relativity_Dashboard.html" class="nav-return-btn" style="margin-right:8px" title="Relativity Dashboard">
+    ← Dashboard
+  </a>
+  <a href="2_Relativistic_Universe.html" class="nav-return-btn" id="btnReturnUniverse" title="Return to Relativistic Universe">
+    <span>⬡ Relativistic Universe</span>
+  </a>
+
+  <div class="header-center">
+    <div class="header-title">Relativistic Journey</div>
+    <div class="header-subtitle">Spacetime Dilation & Stellar Aberration</div>
+  </div>
+
+  <div class="header-actions">
+    <div class="status-pill" id="statusPill">
+      <span class="status-indicator" id="statusDot"></span>
+      <span id="statusText">EARTH AT REST</span>
+    </div>
+    <button class="info-icon-btn" id="btnToggleInfo" title="Physics Guide">ℹ</button>
+  </div>
+</header>
+
+<!-- Mobile Deck Toggle Button -->
+<button class="mobile-deck-toggle" id="btnMobileDeckToggle">☰ Controls</button>
+
+<!-- Left Flight Deck (Control Center) -->
+<aside class="flight-deck" id="flightDeck">
+  <!-- 1. Reference Frame Selector (High Priority) -->
+  <div class="deck-section">
+    <div class="section-label">
+      <span>1. Reference Frame</span>
+      <span style="color:var(--accent-cyan)">Animation Duration</span>
+    </div>
+    <div class="frame-selector-group">
+      <button class="frame-btn active" id="btnEarthFrame" title="Earth reference frame: full duration, undistorted sky">
+        <span class="frame-btn-title">🌍 Earth Frame</span>
+        <span class="frame-btn-duration" id="lblEarthFrameDur">20.0 s</span>
+      </button>
+      <button class="frame-btn" id="btnShipFrame" title="Spaceship reference frame: genuine duration T_E / gamma with aberration">
+        <span class="frame-btn-title">🚀 Relativistic Frame</span>
+        <span class="frame-btn-duration" id="lblShipFrameDur">12.0 s</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. Target Cruise Velocity (v/c) -->
+  <div class="deck-section">
+    <div class="section-label">
+      <span>2. Cruise Velocity (v/c)</span>
+      <span id="lblBetaVal" style="font-family:'SF Mono',Consolas,monospace;color:var(--accent-cyan)">0.8000 c</span>
+    </div>
+    <div class="slider-container">
+      <div class="slider-track-wrap">
+        <input type="range" id="velSlider" min="500" max="999000" step="100" value="800000">
+      </div>
+      <div class="presets-row">
+        <button class="preset-pill" data-beta="0.5">0.50c</button>
+        <button class="preset-pill active" data-beta="0.8">0.80c</button>
+        <button class="preset-pill" data-beta="0.9">0.90c</button>
+        <button class="preset-pill" data-beta="0.99">0.99c</button>
+        <button class="preset-pill" data-beta="0.999">.999c</button>
+      </div>
+    </div>
+
+    <!-- Physics Metrics Cards -->
+    <div class="physics-metric-row">
+      <div class="metric-card">
+        <div class="metric-tag">Lorentz γ</div>
+        <div class="metric-val" id="lblGamma">1.6667</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-tag">Speed</div>
+        <div class="metric-val" id="lblSpeedKms">239,834 km/s</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-tag">Clock Rate</div>
+        <div class="metric-val" id="lblClockRate">0.600×</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Target Destination & Base Earth Duration -->
+  <div class="deck-section">
+    <div class="section-label">
+      <span>3. Destination & Earth Duration</span>
+    </div>
+    <div class="control-grid-row">
+      <select class="select-dest" id="selectDest">
+        <option value="4.37" data-name="Alpha Centauri A" data-color="0xffdd88">Alpha Centauri A (4.37 ly)</option>
+        <option value="4.24" data-name="Proxima Centauri" data-color="0xff5533">Proxima Centauri (4.24 ly)</option>
+        <option value="5.96" data-name="Barnard's Star" data-color="0xff7744">Barnard's Star (5.96 ly)</option>
+        <option value="8.60" data-name="Sirius A" data-color="0xd0e8ff">Sirius A (8.60 ly)</option>
+        <option value="25.04" data-name="Vega" data-color="0x99ccff">Vega (25.04 ly)</option>
+        <option value="40.66" data-name="TRAPPIST-1" data-color="0xff4422">TRAPPIST-1 (40.66 ly)</option>
+        <option value="custom" data-name="Custom Target" data-color="0x5cd0ff">Custom Target Distance...</option>
+      </select>
+
+      <div class="duration-input-wrap" title="Configured Earth-frame animation duration in seconds">
+        <input type="number" id="inputEarthDuration" min="5" max="60" step="1" value="20">
+        <span class="duration-unit">sec</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Flight Execution Controls -->
+  <div class="deck-section">
+    <div class="section-label">
+      <span>4. Flight Operations</span>
+    </div>
+    <div class="actions-row">
+      <button class="btn-action btn-start" id="btnStartFlight">▶ START</button>
+      <button class="btn-action btn-pause" id="btnPauseFlight">⏸ PAUSE</button>
+      <button class="btn-action btn-reset" id="btnResetFlight">↺ RESET</button>
+    </div>
+  </div>
+
+  <!-- 5. Camera Perspectives -->
+  <div class="deck-section">
+    <div class="section-label">
+      <span>5. Camera Perspective</span>
+    </div>
+    <div class="cam-grid">
+      <button class="cam-btn active" data-cam="chase">CHASE</button>
+      <button class="cam-btn" data-cam="cockpit">COCKPIT</button>
+      <button class="cam-btn" data-cam="side">SIDE</button>
+      <button class="cam-btn" data-cam="free">ORBIT</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Bottom Telemetry & Chronometers Console -->
+<main class="bottom-console">
+  <!-- Journey Timeline & Progress -->
+  <div class="timeline-section">
+    <div class="timeline-info">
+      <span id="lblDeparture">EARTH ORIGIN [0.00 LY]</span>
+      <span class="timeline-phase" id="lblFlightPhase">EARTH AT REST</span>
+      <span id="lblArrival">ARRIVAL [ALPHA CENTAURI A]</span>
+    </div>
+    <div class="timeline-track" id="timelineTrack" title="Click or scrub along the journey timeline">
+      <div class="timeline-fill" id="timelineFill">
+        <div class="timeline-marker"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dual Synchronized Clocks -->
+  <div class="clocks-grid">
+    <!-- Earth Frame Clock -->
+    <div class="clock-panel active-frame" id="panelEarthClock">
+      <div class="clock-header">
+        <span class="clock-name">🌍 Earth Reference Frame (S)</span>
+        <span class="clock-badge">STATIONARY</span>
+      </div>
+      <div class="clock-digits-row">
+        <div class="clock-time-main" id="txtEarthAnimTime">0.00 s <span style="font-size:12px;color:var(--text-dim);font-weight:400">/ 20.00 s</span></div>
+        <div class="clock-time-sub" id="txtEarthMissionTime">0.000 yrs / 5.463 yrs</div>
+      </div>
+      <div class="clock-meta-row">
+        <span>Proper Distance: <b id="txtEarthDist">4.370 ly</b></span>
+        <span>Clock Pace: <b>1.000×</b></span>
+      </div>
+    </div>
+
+    <!-- Spaceship Frame Clock -->
+    <div class="clock-panel" id="panelShipClock">
+      <div class="clock-header">
+        <span class="clock-name">🚀 Relativistic Frame (S′)</span>
+        <span class="clock-badge" style="color:var(--accent-cyan);border-color:rgba(92,208,255,0.3)">PROPER TIME</span>
+      </div>
+      <div class="clock-digits-row">
+        <div class="clock-time-main" id="txtShipAnimTime" style="color:var(--accent-cyan)">0.00 s <span style="font-size:12px;color:var(--text-dim);font-weight:400" id="txtShipAnimMax">/ 12.00 s</span></div>
+        <div class="clock-time-sub" id="txtShipMissionTime">0.000 yrs / 3.278 yrs</div>
+      </div>
+      <div class="clock-meta-row">
+        <span>Contracted Distance: <b id="txtShipDist">2.622 ly</b></span>
+        <span>Time Rate (1/γ): <b id="txtShipRate">0.600×</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Relativistic Physics Summary Strip -->
+  <div class="comparison-strip">
+    <span>Length Contraction: <b id="txtLengthRatio">Space contracted to 60.0%</b> (d′ = d/γ)</span>
+    <span>Time Dilation Difference: <b id="txtTimeSaved">0.000 yrs</b> (Twin Gap Δt = t_E − τ)</span>
+  </div>
+</main>
+
+<!-- Physics Guide Drawer (Slide-In Right Panel) -->
+<aside class="physics-drawer" id="physicsDrawer">
+  <div class="drawer-header">
+    <div class="drawer-title">Relativistic Kinematics</div>
+    <button class="drawer-close" id="btnCloseDrawer">✕</button>
+  </div>
+
+  <div class="drawer-block">
+    <h4>1. Lorentz Factor γ</h4>
+    <p>Governs temporal dilation and spatial contraction between relative inertial frames:</p>
+    <div class="formula-box">γ = 1 / √(1 − v²/c²)</div>
+    <p>At 0.80c: γ = 1.6667<br>
+    At 0.90c: γ = 2.2942<br>
+    At 0.99c: γ = 7.0888</p>
+  </div>
+
+  <div class="drawer-block">
+    <h4>2. Reference Frames & Duration</h4>
+    <p>In the <b>Earth Frame</b>, the observer watches the journey take the full configured duration (e.g. 20.0 seconds). The starfield remains undistorted in its celestial rest geometry.</p>
+    <p>In the <b>Relativistic Frame</b>, the spaceship traverses a contracted distance, so proper elapsed time is genuine and shorter:</p>
+    <div class="formula-box">T_ship = T_Earth / γ</div>
+    <p>At 0.80c with a 20s Earth duration, the journey completes in genuinely 12.00 seconds.</p>
+  </div>
+
+  <div class="drawer-block">
+    <h4>3. Three-Part Aberration Profile</h4>
+    <p>The spaceship journey is structured into three phases:</p>
+    <p><b>• First 40% (0–40%):</b> Relativistic aberration smoothly intensifies. Background stars converge towards the forward flight cone with progressive Doppler blueshifting and beaming.</p>
+    <p><b>• Middle 20% (40–60%):</b> Maximum cruise aberration and Doppler intensity are sustained.</p>
+    <p><b>• Final 40% (60–100%):</b> The vessel decelerates smoothly. The forward cone expands back to normal, returning to an undistorted rest starfield upon arrival.</p>
+  </div>
+
+  <div class="drawer-block">
+    <h4>4. Relativistic Aberration & Beaming</h4>
+    <p>Apparent photon arrival angles compress forward along the flight axis:</p>
+    <div class="formula-box">cos θ′ = (cos θ + β) / (1 + β cos θ)</div>
+    <div class="formula-box">D = 1 / [ γ (1 − β cos θ) ]</div>
+    <p>Light rays from nearly the entire sky cluster into a radiant forward focal point.</p>
+  </div>
+</aside>
+
+<!-- Arrival Debrief Modal -->
+<div class="modal-overlay" id="arrivalModal">
+  <div class="modal-card">
+    <div class="modal-icon">🪐</div>
+    <div class="modal-title">Destination Reached</div>
+    <div class="modal-subtitle" id="arrivalDestName">Arrival at Alpha Centauri A (4.37 ly)</div>
+
+    <div class="modal-stats">
+      <div class="modal-stat-box">
+        <div class="modal-stat-label">Earth Time Elapsed</div>
+        <div class="modal-stat-val" id="arrEarthTime">5.46 yrs</div>
+      </div>
+      <div class="modal-stat-box">
+        <div class="modal-stat-label">Ship Proper Time</div>
+        <div class="modal-stat-val" id="arrShipTime" style="color:var(--accent-cyan)">3.28 yrs</div>
+      </div>
+      <div class="modal-stat-box">
+        <div class="modal-stat-label">Cruise Velocity</div>
+        <div class="modal-stat-val" id="arrVelocity">0.8000 c</div>
+      </div>
+      <div class="modal-stat-box">
+        <div class="modal-stat-label">Crew Time Saved</div>
+        <div class="modal-stat-val" id="arrTimeSaved" style="color:var(--accent-green)">+2.19 yrs</div>
+      </div>
+    </div>
+
+    <div class="modal-note" id="arrivalSummaryNote">
+      By cruising at 0.80c, the crew experienced genuine proper time dilation. The spaceship is now stationary at rest, and the starfield has fully returned to its original stellar distribution.
+    </div>
+
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-replay" id="btnModalReplay">↺ REPLAY JOURNEY</button>
+      <button class="modal-btn modal-btn-close" id="btnModalClose">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- Three.js Module Import Map -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ======================================================================
+   PHYSICAL CONSTANTS & SIMULATION STATE
+   ====================================================================== */
+const C_KMS = 299792.458;          // Speed of light in km/s
+const STAR_RADIUS = 1200;          // Celestial sphere radius
+const Z_DEST = 600;                // Destination 3D coordinate along +Z
+
+const state = {
+  // Configured inputs
+  distanceProper: 4.37,            // Proper distance (ly)
+  targetBeta: 0.8000,              // v/c (0.001 to 0.999999)
+  earthAnimDuration: 20.0,         // Configured Earth duration (s), default 20s
+  destinationName: 'Alpha Centauri A',
+  destColorHex: 0xffdd88,
+
+  // Reference frame selection: 'earth' | 'ship'
+  perspectiveMode: 'earth',        // Default Earth Frame
+
+  // Dynamic flight progression
+  journeyState: 'idle',            // 'idle' | 'running' | 'paused' | 'completed'
+  progress: 0.0,                   // Normalized progress p in [0.0, 1.0]
+  liveBeta: 0.0,                   // Instantaneous aberrated speed
+
+  // Relativistic metrics
+  gamma: 1.6667,
+  distanceContracted: 2.622,
+  earthTotalYears: 5.4625,
+  shipTotalYears: 3.2775,
+  shipAnimDuration: 12.0,          // Earth duration / gamma
+
+  // Camera perspective
+  currentCam: 'chase'              // 'chase' | 'cockpit' | 'side' | 'free'
+};
+
+/* ======================================================================
+   RELATIVISTIC FORMULAE & DYNAMIC CALCULATIONS
+   ====================================================================== */
+function calcGamma(beta) {
+  const b = Math.max(0, Math.min(0.999999, beta));
+  const denom = Math.max(1e-12, 1 - b * b);
+  return 1 / Math.sqrt(denom);
+}
+
+// Relativistic Aberration: cos θ' = (cos θ + β) / (1 + β cos θ)
+function calcAberratedAngle(thetaRest, beta) {
+  if (beta <= 0.00001) return thetaRest;
+  const cosT = Math.cos(thetaRest);
+  const cosObs = (cosT + beta) / (1 + beta * cosT);
+  return Math.acos(Math.max(-1, Math.min(1, cosObs)));
+}
+
+// Relativistic Doppler factor: D = 1 / [γ (1 - β cos θ_rest)]
+function calcDopplerFactor(thetaRest, beta, gamma) {
+  if (beta <= 0.00001) return 1.0;
+  return 1 / (gamma * (1 - beta * Math.cos(thetaRest)));
+}
+
+function updatePhysicsCalculations() {
+  const beta = Math.max(0.005, Math.min(0.999999, state.targetBeta));
+  const gamma = calcGamma(beta);
+  const d = Math.max(0.01, state.distanceProper);
+
+  state.gamma = gamma;
+  state.distanceContracted = d / gamma;
+  state.earthTotalYears = d / beta;
+  state.shipTotalYears = state.earthTotalYears / gamma;
+
+  state.shipAnimDuration = state.earthAnimDuration / gamma;
+
+  // Update UI Elements
+  document.getElementById('lblBetaVal').textContent = `${beta.toFixed(4)} c`;
+  document.getElementById('lblGamma').textContent = gamma < 100 ? gamma.toFixed(4) : gamma.toFixed(1);
+  document.getElementById('lblSpeedKms').textContent = `${Math.round(beta * C_KMS).toLocaleString()} km/s`;
+  document.getElementById('lblClockRate').textContent = `${(1 / gamma).toFixed(3)}×`;
+
+  document.getElementById('lblEarthFrameDur').textContent = `${state.earthAnimDuration.toFixed(1)} s`;
+  const shipDurStr = state.shipAnimDuration < 0.1 ? state.shipAnimDuration.toFixed(3) : state.shipAnimDuration.toFixed(1);
+  document.getElementById('lblShipFrameDur').textContent = `${shipDurStr} s`;
+
+  document.getElementById('txtShipAnimMax').textContent = `/ ${state.shipAnimDuration.toFixed(2)} s`;
+  document.getElementById('txtEarthDist').textContent = `${d.toFixed(3)} ly`;
+  document.getElementById('txtShipDist').textContent = `${state.distanceContracted.toFixed(3)} ly`;
+
+  const contractedPct = ((1 / gamma) * 100).toFixed(1);
+  document.getElementById('txtLengthRatio').textContent = `Space contracted to ${contractedPct}%`;
+  document.getElementById('txtShipRate').textContent = `${(1 / gamma).toFixed(3)}× (1/γ)`;
+
+  updateJourneyTelemetry();
+}
+
+/* ======================================================================
+   STELLAR SPECTROSCOPY & BLACKBODY RADIATION (Kelvin to RGB)
+   ====================================================================== */
+function blackbodyToRGB(kelvin) {
+  const temp = Math.max(800, Math.min(250000, kelvin)) / 100;
+  let r, g, b;
+
+  if (temp <= 66) {
+    r = 255;
+    g = 99.4708025861 * Math.log(temp) - 161.1195681661;
+    b = temp <= 19 ? 0 : 138.5177312231 * Math.log(temp - 10) - 305.0447927307;
+  } else {
+    r = 329.698727446 * Math.pow(temp - 60, -0.1332047592);
+    g = 288.1221695283 * Math.pow(temp - 60, -0.0755148492);
+    b = 255;
+  }
+
+  return [
+    Math.max(0, Math.min(1, r / 255)),
+    Math.max(0, Math.min(1, g / 255)),
+    Math.max(0, Math.min(1, b / 255))
+  ];
+}
+
+/* ======================================================================
+   PROCEDURAL STAR GENERATION (Exact Isotropic 2-Sphere)
+   ====================================================================== */
+let starData = null;
+const STAR_COUNT = 6500;
+
+function generateStars(count) {
+  const theta = new Float64Array(count);
+  const phi   = new Float64Array(count);
+  const temp  = new Float32Array(count);
+  const lum   = new Float32Array(count);
+  const size  = new Float32Array(count);
+
+  for (let i = 0; i < count; i++) {
+    theta[i] = Math.acos(1 - 2 * Math.random());
+    phi[i]   = Math.random() * Math.PI * 2;
+
+    const roll = Math.random();
+    if (roll < 0.45) {
+      temp[i] = 3000 + Math.random() * 1500;   // M/K Red dwarfs
+    } else if (roll < 0.78) {
+      temp[i] = 5200 + Math.random() * 1600;   // G/K Yellow stars
+    } else if (roll < 0.94) {
+      temp[i] = 7500 + Math.random() * 2500;   // A/F White stars
+    } else {
+      temp[i] = 11000 + Math.random() * 22000; // O/B Blue giants
+    }
+
+    lum[i] = Math.pow(Math.random(), 2.5) * 0.85 + 0.15;
+    size[i] = 2.4 + lum[i] * 5.0;
+  }
+
+  starData = { count, theta, phi, temp, lum, size };
+}
+
+/* ======================================================================
+   THREE.JS SCENE SETUP
+   ====================================================================== */
+let scene, camera, renderer, controls;
+let starMesh = null;
+let shipGroup = null;
+let enginePlumeLeft, enginePlumeRight;
+let destinationStarMesh = null;
+let solStarMesh = null;
+
+function initScene() {
+  const container = document.getElementById('viewport');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x02040a);
+
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 9000);
+  camera.position.set(0, 2.0, -8.0);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  container.appendChild(renderer.domElement);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.rotateSpeed = 0.6;
+  controls.zoomSpeed = 0.8;
+  controls.minDistance = 0.2;
+  controls.maxDistance = 250;
+  controls.target.set(0, 0.3, 12);
+  controls.update();
+
+  const ambientLight = new THREE.AmbientLight(0x182642, 1.4);
+  scene.add(ambientLight);
+
+  const keyLight = new THREE.DirectionalLight(0x8cb8ff, 2.2);
+  keyLight.position.set(15, 25, -20);
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0x3060b0, 1.2);
+  fillLight.position.set(-15, -10, 20);
+  scene.add(fillLight);
+
+  window.addEventListener('resize', onWindowResize);
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+/* ======================================================================
+   STAR SHADER (HDR Relativistic Beaming & Non-Clipping Brightness)
+   ====================================================================== */
+function createStarShaderMaterial() {
+  return new THREE.ShaderMaterial({
+    vertexShader: `
+      attribute float aSize;
+      attribute float aAlpha;
+      attribute float aIntensity;
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vIntensity;
+
+      void main() {
+        vColor = color;
+        vAlpha = aAlpha;
+        vIntensity = aIntensity;
+
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        // Dynamic size scaling with intensity that continues growing smoothly without sudden clipping
+        float dynamicSize = aSize * (1.0 + log(1.0 + max(0.0, aIntensity - 1.0)) * 0.85);
+        gl_PointSize = dynamicSize * (1200.0 / length(mv.xyz));
+        gl_PointSize = clamp(gl_PointSize, 1.5, 95.0);
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vIntensity;
+
+      void main() {
+        vec2 uv = gl_PointCoord - vec2(0.5);
+        float d = length(uv);
+        if (d > 0.5) discard;
+
+        float core = exp(-d * d * 36.0);
+        float halo = exp(-d * d * 9.0) * (0.35 + min(vIntensity * 0.15, 3.0));
+        float alpha = (core + halo) * vAlpha;
+        if (alpha < 0.005) discard;
+
+        // High intensity stars blossom into brilliant white-hot focal cores
+        float whiteHot = clamp((vIntensity - 1.0) * 0.12, 0.0, 0.95);
+        vec3 rgb = mix(vColor, vec3(1.0, 1.0, 1.0), whiteHot);
+
+        // Continuous brightness response that never reaches a fixed ceiling
+        float brightness = 1.0 + log(1.0 + max(0.0, vIntensity - 1.0)) * 1.5;
+        gl_FragColor = vec4(rgb * brightness, alpha);
+      }
+    `,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    vertexColors: true
+  });
+}
+
+function buildStarMesh() {
+  if (starMesh) {
+    scene.remove(starMesh);
+    starMesh.geometry.dispose();
+  }
+
+  const n = starData.count;
+  const geometry = new THREE.BufferGeometry();
+  const pos        = new Float32Array(n * 3);
+  const col        = new Float32Array(n * 3);
+  const sizes      = new Float32Array(n);
+  const alpha      = new Float32Array(n);
+  const intensity  = new Float32Array(n);
+
+  geometry.setAttribute('position',   new THREE.BufferAttribute(pos, 3));
+  geometry.setAttribute('color',      new THREE.BufferAttribute(col, 3));
+  geometry.setAttribute('aSize',      new THREE.BufferAttribute(sizes, 1));
+  geometry.setAttribute('aAlpha',     new THREE.BufferAttribute(alpha, 1));
+  geometry.setAttribute('aIntensity', new THREE.BufferAttribute(intensity, 1));
+
+  starMesh = new THREE.Points(geometry, createStarShaderMaterial());
+  scene.add(starMesh);
+}
+
+/* ======================================================================
+   STARFIELD RELATIVISTIC DISTORTION UPDATE
+   ====================================================================== */
+function updateStarfieldDistortion(beta) {
+  if (!starMesh || !starData) return;
+
+  const b = Math.max(0, Math.min(0.999999, beta));
+  const gamma = calcGamma(b);
+  const n = starData.count;
+  const geo = starMesh.geometry;
+
+  const pos        = geo.attributes.position.array;
+  const col        = geo.attributes.color.array;
+  const sizes      = geo.attributes.aSize.array;
+  const alpha      = geo.attributes.aAlpha.array;
+  const intensity  = geo.attributes.aIntensity.array;
+
+  for (let i = 0; i < n; i++) {
+    const tRest = starData.theta[i];
+    const pRest = starData.phi[i];
+
+    // 1. Relativistic Aberration: apparent angle theta_obs along flight axis +Z
+    const tObs = (b > 0.00001) ? calcAberratedAngle(tRest, b) : tRest;
+
+    // 2. Doppler factor
+    const D = (b > 0.00001) ? calcDopplerFactor(tRest, b, gamma) : 1.0;
+
+    // 3. Spherical coordinates on celestial sphere (+Z is forward)
+    const sinT = Math.sin(tObs);
+    const cosT = Math.cos(tObs);
+    const sinP = Math.sin(pRest);
+    const cosP = Math.cos(pRest);
+
+    pos[i * 3]     = STAR_RADIUS * sinT * cosP;
+    pos[i * 3 + 1] = STAR_RADIUS * sinT * sinP;
+    pos[i * 3 + 2] = STAR_RADIUS * cosT;
+
+    // 4. Color, Doppler and Relativistic Beaming — identical to Universe page
+    if (b > 0.00001) {
+      // Doppler-shifted blackbody temperature
+      const tObserved = Math.min(2000000, starData.temp[i] * D);
+      const [rBase, gBase, bBase] = blackbodyToRGB(tObserved);
+
+      // Log-compressed beaming (same formula as Universe page)
+      const rawBoost = Math.pow(Math.max(D, 0.01), 2.5);
+      const beamFactor = 1.0 + Math.log(1.0 + rawBoost) * 1.6;
+      const lumFactor = starData.lum[i] * Math.min(beamFactor, 32.0);
+
+      let rr = Math.min(3.5, rBase * lumFactor);
+      let gg = Math.min(3.5, gBase * lumFactor);
+      let bb = Math.min(3.5, bBase * lumFactor);
+
+      // Directional blue-white tint for forward (D>1) stars — same as Universe page
+      if (D > 1.0) {
+        const blueTintStr = Math.min(1.0, (D - 1.0) * 0.18);
+        rr = Math.max(0, rr * (1.0 - blueTintStr * 0.55));
+        gg = Math.min(3.5, gg * (1.0 - blueTintStr * 0.15) + blueTintStr * 0.9 * lumFactor);
+        bb = Math.min(3.5, bb + blueTintStr * 1.4 * lumFactor);
+      }
+
+      col[i * 3]     = rr;
+      col[i * 3 + 1] = gg;
+      col[i * 3 + 2] = bb;
+
+      // Intensity attribute drives shader halo/bloom — continuous, no ceiling
+      const rawIntensity = D >= 1.0
+        ? 1.0 + Math.log(1.0 + rawBoost) * 1.5
+        : Math.pow(Math.max(D, 0.1), 2.0);
+      intensity[i] = rawIntensity;
+
+      // Size: continuous log-growth, matches Universe growth curve
+      const sizeBoost = D >= 1.0
+        ? 1.0 + Math.log(1.0 + (D - 1.0)) * 0.9
+        : Math.pow(Math.max(D, 0.1), 0.3);
+      sizes[i] = starData.size[i] * Math.min(5.5, sizeBoost);
+    } else {
+      // Normal rest state
+      const [rBase, gBase, bBase] = blackbodyToRGB(starData.temp[i]);
+      col[i * 3]     = rBase * starData.lum[i];
+      col[i * 3 + 1] = gBase * starData.lum[i];
+      col[i * 3 + 2] = bBase * starData.lum[i];
+      sizes[i]       = starData.size[i];
+      intensity[i]   = 1.0;
+    }
+
+    alpha[i] = 1.0;
+  }
+
+  geo.attributes.position.needsUpdate   = true;
+  geo.attributes.color.needsUpdate      = true;
+  geo.attributes.aSize.needsUpdate      = true;
+  geo.attributes.aAlpha.needsUpdate     = true;
+  geo.attributes.aIntensity.needsUpdate = true;
+}
+
+/* ======================================================================
+   PROCEDURAL 3D SPACESHIP MODEL (Clean, Modern, No Rings/Particles)
+   ====================================================================== */
+function buildSpaceship() {
+  shipGroup = new THREE.Group();
+
+  const hullMat = new THREE.MeshStandardMaterial({
+    color: 0x162234,
+    metalness: 0.85,
+    roughness: 0.25,
+    flatShading: true
+  });
+
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0x081c38,
+    metalness: 0.9,
+    roughness: 0.1,
+    transparent: true,
+    opacity: 0.8,
+    emissive: 0x0b2850,
+    emissiveIntensity: 0.4
+  });
+
+  const glowMat = new THREE.MeshBasicMaterial({ color: 0x5cd0ff });
+
+  // 1. Delta Fuselage
+  const hullGeo = new THREE.ConeGeometry(1.3, 4.6, 5);
+  hullGeo.rotateX(Math.PI / 2);
+  hullGeo.scale(1.2, 0.45, 1.0);
+  const hull = new THREE.Mesh(hullGeo, hullMat);
+  shipGroup.add(hull);
+
+  // 2. Cockpit Canopy
+  const canopyGeo = new THREE.ConeGeometry(0.5, 1.9, 4);
+  canopyGeo.rotateX(Math.PI / 2);
+  canopyGeo.scale(1.0, 0.4, 0.9);
+  const canopy = new THREE.Mesh(canopyGeo, glassMat);
+  canopy.position.set(0, 0.35, 0.4);
+  shipGroup.add(canopy);
+
+  // 3. Swept Delta Wings
+  const wingGeo = new THREE.BufferGeometry();
+  const wingVertices = new Float32Array([
+    0, 0, 0.6,    3.0, -0.15, -1.8,   0, 0, -1.8,
+    0, 0, 0.6,    0, 0, -1.8,         -3.0, -0.15, -1.8
+  ]);
+  wingGeo.setAttribute('position', new THREE.BufferAttribute(wingVertices, 3));
+  wingGeo.computeVertexNormals();
+  const wings = new THREE.Mesh(wingGeo, hullMat);
+  shipGroup.add(wings);
+
+  // 4. Navigation Markers
+  const navPort = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff3355 }));
+  navPort.position.set(-3.0, -0.15, -1.8);
+  shipGroup.add(navPort);
+
+  const navStbd = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), new THREE.MeshBasicMaterial({ color: 0x33ff77 }));
+  navStbd.position.set(3.0, -0.15, -1.8);
+  shipGroup.add(navStbd);
+
+  // 5. Twin Stern Engines
+  const engineGeo = new THREE.CylinderGeometry(0.2, 0.28, 0.6, 12);
+  engineGeo.rotateX(Math.PI / 2);
+  const engL = new THREE.Mesh(engineGeo, hullMat);
+  engL.position.set(-0.52, -0.05, -2.1);
+  shipGroup.add(engL);
+
+  const engR = new THREE.Mesh(engineGeo, hullMat);
+  engR.position.set(0.52, -0.05, -2.1);
+  shipGroup.add(engR);
+
+  // Engine Bells
+  const bellGeo = new THREE.RingGeometry(0.07, 0.2, 12);
+  const bellL = new THREE.Mesh(bellGeo, glowMat);
+  bellL.position.set(-0.52, -0.05, -2.41);
+  shipGroup.add(bellL);
+
+  const bellR = new THREE.Mesh(bellGeo, glowMat);
+  bellR.position.set(0.52, -0.05, -2.41);
+  shipGroup.add(bellR);
+
+  // 6. Relativistic Plasma Plumes (Exhaust flares dynamically)
+  const plumeGeo = new THREE.ConeGeometry(0.2, 2.0, 12);
+  plumeGeo.rotateX(-Math.PI / 2); // Points backward to -Z
+  const plumeMat = new THREE.MeshBasicMaterial({
+    color: 0x5cd0ff,
+    transparent: true,
+    opacity: 0.6
+  });
+
+  enginePlumeLeft = new THREE.Mesh(plumeGeo, plumeMat);
+  enginePlumeLeft.position.set(-0.52, -0.05, -3.4);
+  shipGroup.add(enginePlumeLeft);
+
+  enginePlumeRight = new THREE.Mesh(plumeGeo, plumeMat.clone());
+  enginePlumeRight.position.set(0.52, -0.05, -3.4);
+  shipGroup.add(enginePlumeRight);
+
+  scene.add(shipGroup);
+}
+
+function updatePlumes(thrustRatio) {
+  if (!enginePlumeLeft || !enginePlumeRight) return;
+  const isMoving = state.journeyState === 'running';
+  const effectiveThrust = isMoving ? Math.max(0.2, thrustRatio) : 0.06;
+
+  const pScale = 0.3 + effectiveThrust * 3.2;
+  enginePlumeLeft.scale.set(1.0 + effectiveThrust * 0.6, pScale, 1.0 + effectiveThrust * 0.6);
+  enginePlumeRight.scale.set(1.0 + effectiveThrust * 0.6, pScale, 1.0 + effectiveThrust * 0.6);
+
+  const pAlpha = 0.15 + effectiveThrust * 0.75;
+  enginePlumeLeft.material.opacity = pAlpha;
+  enginePlumeRight.material.opacity = pAlpha;
+}
+
+/* ======================================================================
+   SOL (EARTH ORIGIN) & DESTINATION STAR MARKERS
+   ====================================================================== */
+function buildEnvironmentStars() {
+  // 1. Sol (Earth Departure Star at Z = 0)
+  const solGeo = new THREE.SphereGeometry(1.2, 24, 24);
+  const solMat = new THREE.MeshBasicMaterial({ color: 0xffe088 });
+  solStarMesh = new THREE.Mesh(solGeo, solMat);
+  solStarMesh.position.set(0, 0, -2);
+  scene.add(solStarMesh);
+
+  // 2. Destination Star System at Z = Z_DEST
+  const destGeo = new THREE.SphereGeometry(12, 32, 32);
+  const destMat = new THREE.MeshBasicMaterial({ color: state.destColorHex });
+  destinationStarMesh = new THREE.Mesh(destGeo, destMat);
+  destinationStarMesh.position.set(0, 0, Z_DEST);
+  scene.add(destinationStarMesh);
+}
+
+function updateDestinationColor(colorHex) {
+  if (destinationStarMesh) {
+    destinationStarMesh.material.color.setHex(colorHex);
+  }
+}
+
+/* ======================================================================
+   CAMERA VIEW MANAGERS
+   ====================================================================== */
+function setCameraMode(mode) {
+  state.currentCam = mode;
+
+  document.querySelectorAll('.cam-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.cam === mode);
+  });
+
+  const cockpitHud = document.getElementById('cockpitHud');
+  const shipZ = shipGroup ? shipGroup.position.z : 0;
+
+  if (mode === 'cockpit') {
+    cockpitHud.style.opacity = '1';
+    if (shipGroup) shipGroup.visible = false; // Hide ship so stars are fully visible
+    camera.position.set(0, 0.45, shipZ + 0.3);
+    controls.target.set(0, 0.45, shipZ + 40);
+  } else {
+    cockpitHud.style.opacity = '0';
+    if (shipGroup) shipGroup.visible = true;
+  }
+
+  if (mode === 'chase') {
+    camera.position.set(0, 2.0, shipZ - 8.0);
+    controls.target.set(0, 0.3, shipZ + 12);
+  } else if (mode === 'side') {
+    camera.position.set(13.0, 1.0, shipZ);
+    controls.target.set(0, 0.2, shipZ);
+  } else if (mode === 'free') {
+    camera.position.set(8.0, 5.0, shipZ - 10.0);
+    controls.target.set(0, 0.3, shipZ);
+  }
+
+  controls.update();
+}
+
+function updateCameraPosition(deltaZ) {
+  if (!shipGroup) return;
+  const shipZ = shipGroup.position.z;
+
+  if (state.currentCam === 'chase') {
+    camera.position.z = shipZ - 8.0;
+    controls.target.z = shipZ + 12;
+  } else if (state.currentCam === 'cockpit') {
+    camera.position.z = shipZ + 0.3;
+    controls.target.z = shipZ + 40;
+  } else if (state.currentCam === 'side') {
+    camera.position.z = shipZ;
+    controls.target.z = shipZ;
+  } else if (state.currentCam === 'free') {
+    // Preserve orbital offset when vessel travels along +Z
+    camera.position.z += deltaZ;
+    controls.target.z += deltaZ;
+  }
+
+  // Ensure celestial star sphere is centered on observer for optical infinity
+  if (starMesh) {
+    starMesh.position.set(camera.position.x, camera.position.y, camera.position.z);
+  }
+}
+
+/* ======================================================================
+   THE THREE-PART ABERRATION SEQUENCE
+   ====================================================================== */
+function updateFlightSequence(p) {
+  const targetB = state.targetBeta;
+  let liveB = 0.0;
+  let phaseText = 'EARTH AT REST';
+
+  if (state.journeyState === 'idle') {
+    liveB = 0.0;
+    phaseText = 'EARTH AT REST';
+  } else if (state.perspectiveMode === 'earth') {
+    // Earth Frame is calm: no aberration, no Doppler brightening
+    liveB = 0.0;
+    phaseText = (p >= 1.0) ? 'ARRIVED AT DESTINATION' : `EARTH FRAME · ${state.targetBeta.toFixed(2)}c CRUISE`;
+  } else if (p < 0.40) {
+    // Phase 1: Aberration smoothly increases through first 40%
+    const frac = p / 0.40;
+    const easing = (1 - Math.cos(Math.PI * frac)) / 2; // Smooth cosine S-curve
+    liveB = targetB * easing;
+    phaseText = `PHASE 1: ABERRATION BUILDING (${liveB.toFixed(3)}c)`;
+  } else if (p < 0.60) {
+    // Phase 2: Peak aberration holds through middle 20%
+    liveB = targetB;
+    phaseText = `PHASE 2: PEAK CRUISE (${targetB.toFixed(3)}c)`;
+  } else if (p < 1.0) {
+    // Phase 3: Aberration smoothly decreases through final 40%
+    const decelFrac = (p - 0.60) / 0.40;
+    const easing = (1 + Math.cos(Math.PI * decelFrac)) / 2; // Smooth cosine deceleration
+    liveB = targetB * easing;
+    phaseText = `PHASE 3: ABERRATION RELEASING (${liveB.toFixed(3)}c)`;
+  } else {
+    // Arrival: Stationary at destination, starfield back to original rest state
+    liveB = 0.0;
+    phaseText = 'ARRIVED AT REST';
+  }
+
+  state.liveBeta = liveB;
+  document.getElementById('lblFlightPhase').textContent = phaseText;
+
+  // Render starfield distortion and engine thrust
+  const visualBeta = (state.perspectiveMode === 'earth') ? 0.0 : state.liveBeta;
+  updateStarfieldDistortion(visualBeta);
+
+  const thrustRatio = (state.perspectiveMode === 'earth') ? 0.5 : (state.liveBeta / Math.max(0.01, state.targetBeta));
+  updatePlumes(thrustRatio);
+}
+
+/* ======================================================================
+   JOURNEY PROGRESS & DUAL CLOCKS TELEMETRY
+   ====================================================================== */
+function updateJourneyTelemetry() {
+  const p = Math.max(0, Math.min(1.0, state.progress));
+
+  // Timeline progress bar
+  const pctStr = (p * 100).toFixed(1) + '%';
+  document.getElementById('timelineFill').style.width = pctStr;
+
+  // Physical Mission Times (Years)
+  const tE_elapsed = p * state.earthTotalYears;
+  const tau_elapsed = p * state.shipTotalYears;
+  const timeSaved = Math.max(0, tE_elapsed - tau_elapsed);
+
+  // Animation Elapsed Clocks (Seconds)
+  const earthAnimElapsed = p * state.earthAnimDuration;
+  const shipAnimElapsed = p * state.shipAnimDuration;
+
+  // Update Earth Frame Clock Display
+  document.getElementById('txtEarthAnimTime').innerHTML =
+    `${earthAnimElapsed.toFixed(2)} s <span style="font-size:12px;color:var(--text-dim);font-weight:400">/ ${state.earthAnimDuration.toFixed(1)} s</span>`;
+  document.getElementById('txtEarthMissionTime').textContent =
+    `${tE_elapsed.toFixed(3)} yrs / ${state.earthTotalYears.toFixed(3)} yrs`;
+
+  // Update Spaceship Frame Clock Display
+  const shipSecFormatted = state.shipAnimDuration < 0.1 ? state.shipAnimDuration.toFixed(3) : state.shipAnimDuration.toFixed(2);
+  document.getElementById('txtShipAnimTime').innerHTML =
+    `${shipAnimElapsed.toFixed(2)} s <span style="font-size:12px;color:var(--text-dim);font-weight:400">/ ${shipSecFormatted} s</span>`;
+  document.getElementById('txtShipMissionTime').textContent =
+    `${tau_elapsed.toFixed(3)} yrs / ${state.shipTotalYears.toFixed(3)} yrs`;
+
+  // Time difference summary
+  document.getElementById('txtTimeSaved').textContent = `+${timeSaved.toFixed(3)} yrs`;
+
+  // Move spaceship along +Z flight corridor
+  if (shipGroup) {
+    const prevZ = shipGroup.position.z;
+    const newZ = p * Z_DEST;
+    shipGroup.position.z = newZ;
+    updateCameraPosition(newZ - prevZ);
+  }
+}
+
+/* ======================================================================
+   MISSION FLIGHT CONTROL (Start, Pause, Reset, Complete)
+   ====================================================================== */
+function startJourney() {
+  if (state.progress >= 1.0) {
+    resetJourney();
+  }
+  state.journeyState = 'running';
+  updateMissionStatus('IN FLIGHT', true);
+  document.getElementById('btnStartFlight').textContent = '▶ RUNNING';
+}
+
+function pauseJourney() {
+  if (state.journeyState === 'running') {
+    state.journeyState = 'paused';
+    updateMissionStatus('PAUSED', false);
+    document.getElementById('btnStartFlight').textContent = '▶ RESUME';
+  } else if (state.journeyState === 'paused') {
+    state.journeyState = 'running';
+    updateMissionStatus('IN FLIGHT', true);
+    document.getElementById('btnStartFlight').textContent = '▶ RUNNING';
+  }
+}
+
+function resetJourney() {
+  state.journeyState = 'idle';
+  state.progress = 0.0;
+  state.liveBeta = 0.0;
+
+  updateMissionStatus('EARTH AT REST', false);
+  document.getElementById('btnStartFlight').textContent = '▶ START';
+
+  updateFlightSequence(0.0);
+  updateJourneyTelemetry();
+
+  document.getElementById('arrivalModal').classList.remove('show');
+}
+
+function completeJourney() {
+  state.journeyState = 'completed';
+  state.progress = 1.0;
+  state.liveBeta = 0.0;
+
+  updateFlightSequence(1.0);
+  updateJourneyTelemetry();
+  updateMissionStatus('ARRIVED AT REST', false);
+  document.getElementById('btnStartFlight').textContent = '↺ REPLAY';
+
+  // Fill and present debrief modal
+  const tE = state.earthTotalYears;
+  const tau = state.shipTotalYears;
+  const saved = tE - tau;
+
+  document.getElementById('arrivalDestName').textContent =
+    `Arrival at ${state.destinationName} (${state.distanceProper.toFixed(2)} ly)`;
+  document.getElementById('arrEarthTime').textContent = `${tE.toFixed(2)} yrs`;
+  document.getElementById('arrShipTime').textContent = `${tau.toFixed(2)} yrs`;
+  document.getElementById('arrVelocity').textContent = `${state.targetBeta.toFixed(4)} c`;
+  document.getElementById('arrTimeSaved').textContent = `+${saved.toFixed(2)} yrs`;
+
+  document.getElementById('arrivalSummaryNote').innerHTML =
+    `Cruising at <b>${state.targetBeta.toFixed(4)}c</b>, space contracted to <b>${state.distanceContracted.toFixed(2)} ly</b> in the ship's frame.<br><br>` +
+    `The crew experienced only <b>${tau.toFixed(2)} years</b> of proper time, while <b>${tE.toFixed(2)} years</b> elapsed on Earth.<br><br>` +
+    `Having arrived and decelerated to rest, the celestial starfield has returned precisely to its original, undistorted stellar distribution.`;
+
+  setTimeout(() => {
+    document.getElementById('arrivalModal').classList.add('show');
+  }, 400);
+}
+
+function updateMissionStatus(text, isPulse) {
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+
+  txt.textContent = text;
+  dot.classList.toggle('pulse', isPulse);
+
+  if (text.includes('IN FLIGHT')) {
+    dot.style.background = '#5cd0ff';
+    dot.style.boxShadow = '0 0 10px #5cd0ff';
+  } else if (text.includes('ARRIVED')) {
+    dot.style.background = '#10b981';
+    dot.style.boxShadow = '0 0 10px #10b981';
+  } else if (text.includes('PAUSED')) {
+    dot.style.background = '#f59e0b';
+    dot.style.boxShadow = '0 0 10px #f59e0b';
+  } else {
+    dot.style.background = '#5cd0ff';
+    dot.style.boxShadow = '0 0 8px #5cd0ff';
+  }
+}
+
+/* ======================================================================
+   REFERENCE FRAME SELECTION & SEAMLESS TRANSITIONS
+   ====================================================================== */
+function setPerspectiveMode(mode) {
+  state.perspectiveMode = mode;
+
+  document.getElementById('btnEarthFrame').classList.toggle('active', mode === 'earth');
+  document.getElementById('btnShipFrame').classList.toggle('active', mode === 'ship');
+
+  document.getElementById('panelEarthClock').classList.toggle('active-frame', mode === 'earth');
+  document.getElementById('panelShipClock').classList.toggle('active-frame', mode === 'ship');
+
+  // Immediately update visual sequence and telemetry at current progress point
+  updateFlightSequence(state.progress);
+  updateJourneyTelemetry();
+}
+
+/* ======================================================================
+   VELOCITY SELECTION & UI EVENT BINDING
+   ====================================================================== */
+function onVelocityChange(newBeta) {
+  state.targetBeta = Math.max(0.005, Math.min(0.999999, newBeta));
+
+  updatePhysicsCalculations();
+
+  if (state.journeyState === 'idle') {
+    updateFlightSequence(0.0);
+  } else {
+    updateFlightSequence(state.progress);
+  }
+
+  // Update preset pills active state
+  document.querySelectorAll('.preset-pill').forEach(btn => {
+    const v = Number(btn.dataset.beta);
+    btn.classList.toggle('active', Math.abs(v - state.targetBeta) < 0.005);
+  });
+}
+
+function bindUIEvents() {
+  // Velocity Slider
+  const velSlider = document.getElementById('velSlider');
+  velSlider.addEventListener('input', () => {
+    onVelocityChange(Number(velSlider.value) / 1000000);
+  });
+
+  // Preset Buttons
+  document.querySelectorAll('.preset-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const b = Number(btn.dataset.beta);
+      velSlider.value = b * 1000000;
+      onVelocityChange(b);
+    });
+  });
+
+  // Reference Frame Selector Buttons
+  document.getElementById('btnEarthFrame').addEventListener('click', () => setPerspectiveMode('earth'));
+  document.getElementById('btnShipFrame').addEventListener('click', () => setPerspectiveMode('ship'));
+
+  // Destination Selector
+  const selectDest = document.getElementById('selectDest');
+  selectDest.addEventListener('change', () => {
+    const opt = selectDest.selectedOptions[0];
+    if (selectDest.value === 'custom') {
+      const input = prompt('Enter custom destination distance in light-years:', '10.0');
+      const val = parseFloat(input);
+      if (Number.isFinite(val) && val > 0.05) {
+        state.distanceProper = val;
+        state.destinationName = `Custom Target (${val} ly)`;
+        state.destColorHex = 0x5cd0ff;
+      }
+    } else {
+      state.distanceProper = parseFloat(opt.value);
+      state.destinationName = opt.dataset.name;
+      state.destColorHex = parseInt(opt.dataset.color);
+    }
+
+    updateDestinationColor(state.destColorHex);
+    document.getElementById('lblArrival').textContent = `ARRIVAL [${state.destinationName.toUpperCase()}]`;
+    updatePhysicsCalculations();
+  });
+
+  // Earth Duration Input
+  const inputDuration = document.getElementById('inputEarthDuration');
+  inputDuration.addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    if (Number.isFinite(val) && val >= 5 && val <= 120) {
+      state.earthAnimDuration = val;
+      updatePhysicsCalculations();
+    }
+  });
+
+  // Flight Operation Buttons
+  document.getElementById('btnStartFlight').addEventListener('click', startJourney);
+  document.getElementById('btnPauseFlight').addEventListener('click', pauseJourney);
+  document.getElementById('btnResetFlight').addEventListener('click', resetJourney);
+
+  // Camera Buttons
+  document.querySelectorAll('.cam-btn').forEach(btn => {
+    btn.addEventListener('click', () => setCameraMode(btn.dataset.cam));
+  });
+
+  // Timeline Scrubber (Click & Drag Support)
+  const timelineTrack = document.getElementById('timelineTrack');
+  let isScrubbing = false;
+
+  function handleScrub(e) {
+    const rect = timelineTrack.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const ratio = Math.max(0, Math.min(1.0, x / rect.width));
+    state.progress = ratio;
+
+    if (state.journeyState === 'idle') {
+      state.journeyState = 'paused';
+      document.getElementById('btnStartFlight').textContent = '▶ RESUME';
+      updateMissionStatus('PAUSED', false);
+    }
+
+    updateFlightSequence(state.progress);
+    updateJourneyTelemetry();
+
+    if (ratio >= 1.0) {
+      completeJourney();
+    } else {
+      document.getElementById('arrivalModal').classList.remove('show');
+    }
+  }
+
+  timelineTrack.addEventListener('pointerdown', (e) => {
+    isScrubbing = true;
+    timelineTrack.setPointerCapture(e.pointerId);
+    handleScrub(e);
+  });
+
+  timelineTrack.addEventListener('pointermove', (e) => {
+    if (isScrubbing) handleScrub(e);
+  });
+
+  timelineTrack.addEventListener('pointerup', (e) => {
+    if (isScrubbing) {
+      isScrubbing = false;
+      try { timelineTrack.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+  });
+
+  // Physics Drawer Toggles
+  const btnToggleInfo = document.getElementById('btnToggleInfo');
+  const btnCloseDrawer = document.getElementById('btnCloseDrawer');
+  const physicsDrawer = document.getElementById('physicsDrawer');
+
+  btnToggleInfo.addEventListener('click', () => physicsDrawer.classList.toggle('open'));
+  btnCloseDrawer.addEventListener('click', () => physicsDrawer.classList.remove('open'));
+
+  // Mobile Deck Toggle
+  const btnMobileDeckToggle = document.getElementById('btnMobileDeckToggle');
+  const flightDeck = document.getElementById('flightDeck');
+  btnMobileDeckToggle.addEventListener('click', () => {
+    flightDeck.classList.toggle('open');
+  });
+
+  // Arrival Modal Buttons
+  document.getElementById('btnModalReplay').addEventListener('click', () => {
+    document.getElementById('arrivalModal').classList.remove('show');
+    resetJourney();
+    startJourney();
+  });
+
+  document.getElementById('btnModalClose').addEventListener('click', () => {
+    document.getElementById('arrivalModal').classList.remove('show');
+  });
+}
+
+/* ======================================================================
+   MAIN ANIMATION LOOP
+   ====================================================================== */
+let lastTimestamp = performance.now();
+
+function animate(now) {
+  requestAnimationFrame(animate);
+
+  const dt = (now - lastTimestamp) / 1000;
+  lastTimestamp = now;
+
+  // Advance journey progression if active
+  if (state.journeyState === 'running') {
+    // The active reference frame directly dictates the real elapsed animation duration!
+    // In Earth Frame: completes in state.earthAnimDuration (e.g. 20.0s).
+    // In Relativistic Frame: completes genuinely in state.shipAnimDuration = T_E / gamma (e.g. 12.0s).
+    const activeDuration = (state.perspectiveMode === 'ship')
+      ? Math.max(0.05, state.shipAnimDuration)
+      : state.earthAnimDuration;
+
+    state.progress += dt / activeDuration;
+
+    if (state.progress >= 1.0) {
+      completeJourney();
+    } else {
+      updateFlightSequence(state.progress);
+      updateJourneyTelemetry();
+    }
+  }
+
+  // Subtle axial rotation for destination star
+  if (destinationStarMesh) {
+    destinationStarMesh.rotation.y += 0.003;
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+/* ======================================================================
+   INITIALIZATION
+   ====================================================================== */
+initScene();
+buildSpaceship();
+buildEnvironmentStars();
+generateStars(STAR_COUNT);
+buildStarMesh();
+
+// Start at rest
+updateStarfieldDistortion(0.0);
+updatePlumes(0.0);
+updatePhysicsCalculations();
+updateJourneyTelemetry();
+updateFlightSequence(0.0);
+
+setCameraMode('chase');
+bindUIEvents();
+
+requestAnimationFrame(animate);
+
+</script>
+</body>
+</html>
