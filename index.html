@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relativity Dashboard — Relativistic Odyssey</title>
+<style>
+/* ── Design System ── */
+:root {
+  --bg-deep:       #02040c;
+  --bg-panel:      rgba(7, 13, 26, 0.80);
+  --bg-card:       rgba(10, 18, 36, 0.90);
+  --border:        rgba(80, 150, 240, 0.18);
+  --border-hi:     rgba(100, 190, 255, 0.45);
+  --text-main:     #ddeafc;
+  --text-muted:    #8099bb;
+  --text-dim:      #4a627e;
+  --accent:        #5cd0ff;
+  --accent-dark:   #2a78c0;
+  --glow:          0 0 22px rgba(80, 180, 255, 0.22);
+  --radius-sm:     6px;
+  --radius-md:     12px;
+  --radius-lg:     18px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* ── Starfield Background ── */
+#starbg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+#starbg canvas { width: 100%; height: 100%; }
+
+/* ── Layout ── */
+.wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ── Top Navigation ── */
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 0 0;
+  flex-wrap: wrap;
+}
+
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background: var(--bg-panel);
+  color: var(--text-muted);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.22s ease;
+}
+
+.nav-pill:hover {
+  background: rgba(25, 60, 120, 0.9);
+  color: #fff;
+  border-color: var(--border-hi);
+  box-shadow: var(--glow);
+  transform: translateY(-1px);
+}
+
+.nav-pill.active {
+  background: rgba(30, 80, 160, 0.75);
+  color: var(--accent);
+  border-color: rgba(90, 180, 255, 0.5);
+}
+
+/* ── Hero ── */
+.hero {
+  text-align: center;
+  padding: 56px 0 42px;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+.hero-title {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(80, 160, 255, 0.4);
+  margin-bottom: 14px;
+}
+
+.hero-title span {
+  background: linear-gradient(90deg, #60bfff, #a0e0ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 580px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Section Headings ── */
+.section {
+  margin-bottom: 36px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-icon {
+  font-size: 20px;
+  width: 36px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+
+/* ── Cards / Panels ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 22px 24px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.card p {
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-size: 13.5px;
+}
+
+.card p:last-child { margin-bottom: 0; }
+
+.card strong {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* ── Equation Boxes ── */
+.eq-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.eq-box {
+  background: rgba(10, 24, 50, 0.9);
+  border: 1px solid rgba(80, 150, 240, 0.25);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-family: 'SF Mono', Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  color: #9bd8ff;
+  flex: 1;
+  min-width: 200px;
+}
+
+.eq-box .eq-name {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* ── Interactive Velocity Panel ── */
+.interactive-box {
+  background: rgba(8, 18, 40, 0.92);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-top: 16px;
+  box-shadow: var(--glow);
+}
+
+.interactive-box label {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.preset-bar { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+.preset-btn {
+  flex: 1;
+  min-width: 48px;
+  padding: 4px 6px;
+  background: rgba(20, 40, 80, 0.45);
+  border: 1px solid rgba(70, 120, 220, 0.25);
+  border-radius: var(--radius-sm);
+  color: #8ab0d8;
+  font-size: 11px;
+  font-family: 'SF Mono', Consolas, monospace;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+.preset-btn:hover { background: rgba(40, 80, 160, 0.5); color: #b8dcff; border-color: var(--accent); }
+.preset-btn.active { background: rgba(45, 95, 200, 0.45); color: var(--accent); border-color: var(--accent); }
+
+.calc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(80, 150, 240, 0.15);
+  flex-wrap: wrap;
+}
+.calc-row label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 0;
+}
+.calc-input {
+  width: 90px;
+  background: rgba(14, 26, 52, 0.85);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  padding: 4px 8px;
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 12.5px;
+  outline: none;
+}
+.calc-input:focus { border-color: var(--accent); }
+.calc-unit { font-size: 12px; color: var(--text-muted); }
+.spec-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 600;
+  margin-left: 6px;
+}
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(30,60,130,0.6), rgba(80,150,255,0.5));
+  outline: none;
+  cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #1a4a90;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(80, 190, 255, 0.55);
+  transition: transform 0.1s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+input[type=range]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #1a4a90;
+  cursor: pointer;
+}
+
+.vel-val {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 70px;
+  text-align: right;
+}
+
+.readout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.readout-card {
+  background: rgba(14, 28, 56, 0.7);
+  border: 1px solid rgba(60, 110, 200, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+}
+
+.readout-card .rlabel {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.readout-card .rval {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.readout-card .rval.accent { color: var(--accent); }
+
+/* ── Aberration Preview SVG ── */
+.aberr-preview {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.aberr-panel {
+  flex: 1;
+  min-width: 200px;
+  background: rgba(5, 10, 24, 0.95);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.aberr-panel-title {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.aberr-panel svg { width: 100%; max-width: 220px; }
+
+/* ── Navigator Cards ── */
+.nav-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.nav-card {
+  display: block;
+  text-decoration: none;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 22px;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(60, 150, 255, 0.12), transparent 70%);
+  transition: opacity 0.3s;
+}
+
+.nav-card:hover::before { opacity: 1; }
+
+.nav-card:hover {
+  border-color: var(--border-hi);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.5), var(--glow);
+}
+
+.nav-card-icon { font-size: 28px; margin-bottom: 10px; }
+
+.nav-card-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.nav-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.nav-card-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.nav-card-arrow {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  font-size: 20px;
+  color: var(--text-dim);
+  transition: transform 0.2s, color 0.2s;
+}
+
+.nav-card:hover .nav-card-arrow {
+  transform: translateX(4px);
+  color: var(--accent);
+}
+
+/* Active-page indicator */
+.nav-card.this-page {
+  border-color: rgba(90, 180, 255, 0.4);
+  cursor: default;
+}
+
+.nav-card.this-page:hover { transform: none; }
+
+/* ── Highlight note ── */
+.note-box {
+  font-size: 12px;
+  color: rgba(135, 170, 215, 0.75);
+  padding: 10px 14px;
+  line-height: 1.5;
+  background: rgba(14, 24, 48, 0.5);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid rgba(80, 140, 255, 0.4);
+  margin-top: 10px;
+}
+
+/* ── Doppler Colour Bar ── */
+.doppler-bar-wrap {
+  margin: 14px 0 8px;
+}
+
+.doppler-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg,
+    #8b00ff 0%, #0000ff 18%, #0080ff 30%,
+    #00e5ff 42%, #00ff88 55%,
+    #ffff00 68%, #ff8800 82%, #ff0000 100%);
+  position: relative;
+}
+
+.doppler-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .hero-title { font-size: 26px; }
+  .card { padding: 16px 16px; }
+  .interactive-box { padding: 14px 16px; }
+  .nav-card { padding: 18px 16px; }
+  .eq-wrap { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- Procedural Starfield Background -->
+<div id="starbg"><canvas id="bgCanvas"></canvas></div>
+
+<div class="wrapper">
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <a class="nav-pill active" href="1_Relativity_Dashboard.html">📊 Dashboard</a>
+    <a class="nav-pill" href="2_Relativistic_Universe.html">⬡ Relativistic Universe</a>
+    <a class="nav-pill" href="3_Relativistic_Journey.html">🚀 Relativistic Journey</a>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">Relativistic Odyssey · Educational Companion</div>
+    <h1 class="hero-title">Understanding <span>Special Relativity</span></h1>
+    <p class="hero-subtitle">
+      Discover why space and time are not absolute — and why the speed of light shapes the fabric of reality for every observer in the universe.
+    </p>
+  </div>
+
+  <!-- ═════════ SECTION 1: INTRO ═════════ -->
+  <section class="section" id="intro">
+    <div class="section-head">
+      <div class="section-icon">🌌</div>
+      <div>
+        <div class="section-label">Section 1</div>
+        <div class="section-title">What is Special Relativity?</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>
+        In 1905, Albert Einstein published his <strong>Special Theory of Relativity</strong>, fundamentally
+        rewriting our understanding of space, time, and motion. The theory rests on two deceptively
+        simple postulates:
+      </p>
+      <p>
+        <strong>1. The laws of physics are the same in every inertial reference frame.</strong>
+        A frame that is moving at constant velocity (not rotating, not accelerating) is equivalent
+        to one that is "at rest". There is no preferred frame; motion only has meaning relative to
+        something else.
+      </p>
+      <p>
+        <strong>2. The speed of light in a vacuum is the same for all observers, regardless of the
+        motion of the light source or the observer.</strong>
+        Light always travels at c ≈ 299,792 km/s in vacuum, as measured in any inertial frame.
+      </p>
+      <p>
+        These two rules, taken together, force extraordinary consequences: clocks run at different
+        rates, distances contract, and no material object can be accelerated to or beyond the speed
+        of light. The two simulators in this project make these consequences visible and explorable.
+      </p>
+    </div>
+
+    <div class="note-box">
+      <strong>Why does the speed of light matter?</strong> Because light propagates at a finite speed
+      set by the structure of spacetime itself, any event that influences another must wait for the
+      signal to travel. This means simultaneity — whether two events happen "at the same time" — depends
+      on who is doing the measuring.
+    </div>
+  </section>
+
+  <!-- ═════════ SECTION 2: TIME DILATION ═════════ -->
+  <section class="section" id="time-dilation">
+    <div class="section-head">
+      <div class="section-icon">⏱</div>
+      <div>
+        <div class="section-label">Section 2</div>
+        <div class="section-title">Time Dilation</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>
+        A moving clock runs slow compared to a stationary clock — not because of a mechanical defect,
+        but because time itself passes at a different rate. The relationship between the two is governed
+        by the <strong>Lorentz factor</strong> γ (gamma):
+      </p>
+
+      <div class="eq-wrap">
+        <div class="eq-box">
+          <span class="eq-name">Lorentz Factor</span>
+          γ = 1 / √(1 − v²/c²)
+        </div>
+        <div class="eq-box">
+          <span class="eq-name">Time Dilation</span>
+          Δt′ = Δt / γ
+        </div>
+      </div>
+
+      <p>
+        Here <strong>Δt</strong> is the time interval measured in the observer's rest frame, and
+        <strong>Δt′</strong> is the interval measured by a clock moving at speed v.
+        Since γ ≥ 1, the moving observer's elapsed time Δt′ is <em>shorter</em> than Δt —
+        the moving clock ticks more slowly.
+      </p>
+      <p>
+        The elapsed time measured between two events can legitimately differ between reference frames.
+        The events themselves are real and unique; it is the coordinate time between them that is
+        frame-dependent.
+      </p>
+    </div>
+
+    <!-- Interactive velocity widget -->
+    <div class="interactive-box">
+      <label>Adjust Velocity (v / c)</label>
+      <div class="slider-row">
+        <input type="range" id="dashVelSlider" min="0" max="9999" value="0" step="1">
+        <div class="vel-val" id="dashVelDisplay">0.0000 c</div>
+      </div>
+      <div class="preset-bar" id="dashVelPresets">
+        <button class="preset-btn active" data-v="0">0.0c</button>
+        <button class="preset-btn" data-v="5000">0.50c</button>
+        <button class="preset-btn" data-v="8000">0.80c</button>
+        <button class="preset-btn" data-v="9000">0.90c</button>
+        <button class="preset-btn" data-v="9900">0.99c</button>
+        <button class="preset-btn" data-v="9999">.9999c</button>
+      </div>
+      <div class="readout-grid">
+        <div class="readout-card">
+          <div class="rlabel">Velocity β = v/c</div>
+          <div class="rval" id="dBeta">0.0000 c</div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Lorentz Factor γ</div>
+          <div class="rval accent" id="dGamma">1.0000</div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Time Dilation (1/γ)</div>
+          <div class="rval" id="dDilation">1.0000×</div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">1 Earth-year → Ship</div>
+          <div class="rval" id="dYearShip">1.0000 yr</div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Forward Doppler</div>
+          <div class="rval" id="dDfwd">1.0000×</div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Half-sky Cone θ′</div>
+          <div class="rval" id="dCone">90.00°</div>
+        </div>
+      </div>
+
+      <!-- Twin Paradox Trip Calculator Row -->
+      <div class="calc-row">
+        <label>Earth-Frame Trip Duration (t):</label>
+        <input type="number" id="dashTimeInput" class="calc-input" value="5.0" min="0.1" max="1000" step="0.5">
+        <span class="calc-unit">years</span>
+        <div style="flex:1;min-width:200px;display:flex;justify-content:flex-end;gap:14px;font-size:12px;flex-wrap:wrap">
+          <span>Ship Proper Time (τ): <strong id="dShipTripTime" style="color:var(--accent)">5.000 yrs</strong></span>
+          <span>Twin Difference (Δt): <strong id="dTimeSaved" style="color:#60e0a0">0.000 yrs</strong></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ SECTION 3: LENGTH CONTRACTION ═════════ -->
+  <section class="section" id="length-contraction">
+    <div class="section-head">
+      <div class="section-icon">📏</div>
+      <div>
+        <div class="section-label">Section 3</div>
+        <div class="section-title">Length Contraction</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>
+        A moving observer also measures distances to be shorter along the direction of travel.
+        If an object has proper length L in its rest frame, an observer moving at speed v relative
+        to that object measures a contracted length:
+      </p>
+
+      <div class="eq-wrap">
+        <div class="eq-box">
+          <span class="eq-name">Length Contraction</span>
+          L′ = L / γ
+        </div>
+        <div class="eq-box">
+          <span class="eq-name">Contracted Distance</span>
+          d′ = d / γ
+        </div>
+      </div>
+
+      <p>
+        In the interstellar journey simulator, the destination star is <strong>d light-years away</strong>
+        in the Earth frame. From the spaceship's perspective, that distance contracts to only
+        <strong>d / γ light-years</strong>. This is why the journey takes less proper time for the crew
+        even though the ship never exceeds c — the crew see a shorter path.
+      </p>
+      <p>
+        The measurement of a length involves locating both endpoints <em>simultaneously</em> in
+        the measuring frame. Because simultaneity is frame-dependent, the same pair of endpoints
+        can yield different length measurements in different frames — both correct within their
+        own frames of reference.
+      </p>
+    </div>
+
+    <!-- Interactive Length Contraction Calculator -->
+    <div class="interactive-box">
+      <label>Interactive Length Contraction Calculator (L′ = L / γ)</label>
+      <div class="calc-row" style="margin-top:0;padding-top:0;border-top:none">
+        <label>Rest Distance (L):</label>
+        <input type="number" id="dashDistInput" class="calc-input" value="4.37" min="0.1" max="10000" step="0.1">
+        <span class="calc-unit">light-years (ly)</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <button class="preset-btn dist-btn" data-dist="4.37">α Centauri (4.37 ly)</button>
+          <button class="preset-btn dist-btn" data-dist="8.60">Sirius (8.60 ly)</button>
+          <button class="preset-btn dist-btn" data-dist="25.04">Vega (25.0 ly)</button>
+        </div>
+      </div>
+      <div class="readout-grid" style="margin-top:12px">
+        <div class="readout-card">
+          <div class="rlabel">Proper Distance (L)</div>
+          <div class="rval" id="dLRest">4.370 ly</div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Contracted Distance (L′)</div>
+          <div class="rval accent" id="dLContracted">4.370 ly</div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Contraction Percentage</div>
+          <div class="rval" id="dLRatio">100.0% of rest</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ SECTION 4: ABERRATION & DOPPLER ═════════ -->
+  <section class="section" id="aberration">
+    <div class="section-head">
+      <div class="section-icon">🔭</div>
+      <div>
+        <div class="section-label">Section 4</div>
+        <div class="section-title">Relativistic Aberration &amp; Doppler Shift</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p>
+        A moving observer does not merely see the universe <em>shifted</em> in colour — the
+        apparent <em>directions</em> of incoming photons change as well. This is
+        <strong>relativistic aberration</strong>. As velocity increases toward c, stars from across
+        nearly the entire sky appear to converge into a smaller and smaller forward cone.
+      </p>
+
+      <div class="eq-wrap">
+        <div class="eq-box">
+          <span class="eq-name">Aberration Formula</span>
+          cos θ′ = (cos θ + β) / (1 + β cos θ)
+        </div>
+        <div class="eq-box">
+          <span class="eq-name">Relativistic Doppler</span>
+          D = 1 / [γ (1 − β cos θ)]
+        </div>
+      </div>
+
+      <p>
+        In these equations, θ is the angle of a star relative to the forward direction in the
+        rest frame, and θ′ is its apparent angle as seen by the moving observer.
+        D is the Doppler factor — it multiplies the apparent frequency (and effective blackbody
+        temperature) of incoming light:
+      </p>
+      <p>
+        <strong>Forward direction (θ → 0):</strong> D &gt; 1 → photons arrive blueshifted
+        (higher frequency, shorter wavelength). Stars appear blue-white and <em>brighter</em>.
+        <br>
+        <strong>Rearward direction (θ → π):</strong> D &lt; 1 → photons arrive redshifted.
+        Stars appear dimmer and reddened.
+      </p>
+      <p>
+        <strong>Relativistic beaming</strong> (also called the headlight effect) refers to the
+        additional brightening of forward stars. The apparent flux from a source scales
+        approximately as D³ or D⁴ depending on the spectral model, so at 0.99c the forward
+        region is <em>thousands of times brighter</em> than at rest, while the rearward sky
+        becomes nearly dark.
+      </p>
+    </div>
+
+    <!-- Aberration diagrams -->
+    <div class="aberr-preview">
+
+      <div class="aberr-panel">
+        <div class="aberr-panel-title">At Rest (β = 0)</div>
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Stars uniformly distributed at rest">
+          <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(80,140,255,0.2)" stroke-width="1"/>
+          <!-- Uniform dots -->
+          <circle cx="100" cy="15" r="2.5" fill="#aad4ff" opacity="0.9"/>
+          <circle cx="145" cy="38" r="2" fill="#ffd8a0" opacity="0.8"/>
+          <circle cx="168" cy="80" r="1.8" fill="#ffa060" opacity="0.7"/>
+          <circle cx="168" cy="122" r="2.2" fill="#aad4ff" opacity="0.85"/>
+          <circle cx="145" cy="162" r="1.6" fill="#ffe0b0" opacity="0.75"/>
+          <circle cx="100" cy="183" r="2.3" fill="#ff9060" opacity="0.8"/>
+          <circle cx="55" cy="162" r="1.8" fill="#aad4ff" opacity="0.85"/>
+          <circle cx="32" cy="122" r="2" fill="#ffd080" opacity="0.75"/>
+          <circle cx="32" cy="80" r="2.2" fill="#aad4ff" opacity="0.8"/>
+          <circle cx="55" cy="38" r="1.9" fill="#ffc060" opacity="0.7"/>
+          <!-- Inner ring -->
+          <circle cx="100" cy="40" r="1.6" fill="#c0e0ff" opacity="0.6"/>
+          <circle cx="140" cy="65" r="1.4" fill="#ffe4a0" opacity="0.6"/>
+          <circle cx="155" cy="100" r="1.5" fill="#aad4ff" opacity="0.6"/>
+          <circle cx="140" cy="135" r="1.4" fill="#aad4ff" opacity="0.6"/>
+          <circle cx="100" cy="158" r="1.5" fill="#ffb870" opacity="0.6"/>
+          <circle cx="60" cy="135" r="1.4" fill="#c0e0ff" opacity="0.6"/>
+          <circle cx="45" cy="100" r="1.5" fill="#ffe090" opacity="0.6"/>
+          <circle cx="60" cy="65" r="1.3" fill="#aad4ff" opacity="0.6"/>
+          <!-- Center -->
+          <circle cx="100" cy="100" r="2.8" fill="#6090c0" opacity="0.3"/>
+          <text x="100" y="196" text-anchor="middle" font-size="9" fill="rgba(100,160,240,0.6)" font-family="monospace">UNIFORM SKY</text>
+        </svg>
+      </div>
+
+      <div class="aberr-panel">
+        <div class="aberr-panel-title">At 0.95c (β = 0.95)</div>
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Stars converged toward forward direction at 0.95c">
+          <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(80,140,255,0.2)" stroke-width="1"/>
+          <!-- Forward cone glow -->
+          <radialGradient id="fwd" cx="50%" cy="10%" r="55%">
+            <stop offset="0%" stop-color="#80cfff" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+          <circle cx="100" cy="100" r="90" fill="url(#fwd)"/>
+          <!-- Most stars pushed forward/top -->
+          <circle cx="100" cy="17" r="3.2" fill="#c8f0ff" opacity="1.0"/>
+          <circle cx="118" cy="20" r="2.8" fill="#a0e4ff" opacity="0.95"/>
+          <circle cx="82" cy="20" r="2.6" fill="#b8ecff" opacity="0.95"/>
+          <circle cx="135" cy="30" r="2.2" fill="#8cd8ff" opacity="0.9"/>
+          <circle cx="65" cy="30" r="2.0" fill="#9cd4ff" opacity="0.9"/>
+          <circle cx="150" cy="48" r="1.8" fill="#78ccff" opacity="0.8"/>
+          <circle cx="50" cy="48" r="1.7" fill="#88d0ff" opacity="0.8"/>
+          <circle cx="160" cy="72" r="1.5" fill="#6cc4ff" opacity="0.7"/>
+          <circle cx="40" cy="72" r="1.4" fill="#7acaff" opacity="0.7"/>
+          <circle cx="162" cy="100" r="1.3" fill="#60c0ff" opacity="0.6"/>
+          <circle cx="38" cy="100" r="1.2" fill="#68c4ff" opacity="0.6"/>
+          <!-- Rear: very few, dim stars -->
+          <circle cx="100" cy="183" r="1.0" fill="#ff7040" opacity="0.35"/>
+          <circle cx="135" cy="168" r="0.9" fill="#ff8050" opacity="0.3"/>
+          <circle cx="65" cy="168" r="0.9" fill="#ff6040" opacity="0.3"/>
+          <!-- Forward bright cluster -->
+          <circle cx="100" cy="22" r="4.5" fill="white" opacity="0.6"/>
+          <text x="100" y="196" text-anchor="middle" font-size="9" fill="rgba(100,160,240,0.6)" font-family="monospace">ABERRATED SKY</text>
+        </svg>
+      </div>
+
+    </div>
+
+    <!-- Doppler colour bar -->
+    <div class="card" style="margin-top:14px">
+      <p><strong>Doppler colour shift — from rest frame to 0.99c</strong></p>
+      <p>As the observer accelerates, the blackbody temperature of forward stars is multiplied by
+         the Doppler factor D. Even infrared sources shift into the visible and eventually into the
+         ultraviolet. The colour bar below shows the visible spectrum from violet to red.</p>
+      <div class="doppler-bar-wrap">
+        <div class="doppler-bar"></div>
+        <div class="doppler-label-row">
+          <span>← BLUESHIFTED (forward)</span>
+          <span>REST</span>
+          <span>(rearward) REDSHIFTED →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Doppler Wavelength Calculator -->
+    <div class="interactive-box" style="margin-top:14px">
+      <label>Interactive Doppler Wavelength Calculator (λ′ = λ₀ / D)</label>
+      <div class="calc-row" style="margin-top:0;padding-top:0;border-top:none">
+        <label>Rest Wavelength (λ₀):</label>
+        <input type="number" id="dashWlInput" class="calc-input" value="550" min="50" max="2500" step="10">
+        <span class="calc-unit">nm</span>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <button class="preset-btn wl-btn" data-wl="250">UV (250 nm)</button>
+          <button class="preset-btn wl-btn active" data-wl="550">Green (550 nm)</button>
+          <button class="preset-btn wl-btn" data-wl="680">Red (680 nm)</button>
+          <button class="preset-btn wl-btn" data-wl="1200">IR (1200 nm)</button>
+        </div>
+      </div>
+      <div class="readout-grid" style="margin-top:12px">
+        <div class="readout-card">
+          <div class="rlabel">Forward Observed λ′_fwd</div>
+          <div class="rval accent" id="dObsFwd">550.0 nm <span class="spec-badge" id="dBadgeFwd" style="background:#00e575;color:#000">VIS</span></div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Rearward Observed λ′_rear</div>
+          <div class="rval" id="dObsRear">550.0 nm <span class="spec-badge" id="dBadgeRear" style="background:#00e575;color:#000">VIS</span></div>
+        </div>
+        <div class="readout-card">
+          <div class="rlabel">Forward Doppler Factor (D_fwd)</div>
+          <div class="rval" id="dDopplerFwdVal">1.0000× (blueshift)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ SECTION 5: NAVIGATE ═════════ -->
+  <section class="section" id="explore">
+    <div class="section-head">
+      <div class="section-icon">🚀</div>
+      <div>
+        <div class="section-label">Section 5</div>
+        <div class="section-title">Explore the Simulators</div>
+      </div>
+    </div>
+
+    <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:18px">
+      Having read the physics, choose your simulator below. Each page opens independently in your browser.
+    </p>
+
+    <div class="nav-cards">
+
+      <!-- Dashboard (this page) -->
+      <div class="nav-card this-page">
+        <div class="nav-card-icon">📊</div>
+        <div class="nav-card-label">You Are Here</div>
+        <div class="nav-card-title">Relativity Dashboard</div>
+        <div class="nav-card-desc">
+          Introductory guide to special relativity: time dilation, length contraction,
+          relativistic aberration, and the Doppler shift. Includes an interactive velocity control.
+        </div>
+      </div>
+
+      <!-- Universe Simulator -->
+      <a class="nav-card" href="2_Relativistic_Universe.html">
+        <div class="nav-card-icon">⬡</div>
+        <div class="nav-card-label">Simulator 1</div>
+        <div class="nav-card-title">Relativistic Universe</div>
+        <div class="nav-card-desc">
+          Drag a velocity slider to any fraction of c and watch the starfield warp in real time.
+          Toggle aberration, Doppler colour and relativistic beaming independently. Multiple camera
+          perspectives and a spectroscopy readout included.
+        </div>
+        <span class="nav-card-arrow">→</span>
+      </a>
+
+      <!-- Journey Simulator -->
+      <a class="nav-card" href="3_Relativistic_Journey.html">
+        <div class="nav-card-icon">🚀</div>
+        <div class="nav-card-label">Simulator 2</div>
+        <div class="nav-card-title">Relativistic Journey</div>
+        <div class="nav-card-desc">
+          Fly to a nearby star system and compare elapsed time in the Earth frame versus the
+          spaceship frame. Watch aberration build, peak, and dissolve across the three-phase journey.
+          Inspect the arrival debrief with time-dilation figures.
+        </div>
+        <span class="nav-card-arrow">→</span>
+      </a>
+
+    </div>
+  </section>
+
+</div><!-- /.wrapper -->
+
+<!-- Background star canvas -->
+<script>
+(function() {
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function generateStars(n) {
+    stars = [];
+    for (let i = 0; i < n; i++) {
+      stars.push({
+        x: Math.random(),
+        y: Math.random(),
+        r: Math.random() * 1.3 + 0.3,
+        a: Math.random() * 0.65 + 0.1,
+        flicker: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  let t = 0;
+  function draw() {
+    t += 0.012;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of stars) {
+      const alpha = s.a + Math.sin(t + s.flicker) * 0.08;
+      ctx.beginPath();
+      ctx.arc(s.x * canvas.width, s.y * canvas.height, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(180,215,255,${alpha.toFixed(3)})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  generateStars(360);
+  draw();
+})();
+</script>
+
+<!-- Dashboard interactive calculators and controls -->
+<script>
+(function() {
+  const C_KMS = 299792.458;
+  let currentBeta = 0;
+  let currentGamma = 1;
+  let currentDfwd = 1;
+  let currentDrear = 1;
+
+  function gamma(beta) {
+    const b = Math.max(0, Math.min(0.9999999, beta));
+    return 1 / Math.sqrt(Math.max(1e-14, 1 - b * b));
+  }
+
+  function dopplerFwd(beta, g) {
+    if (beta < 1e-6) return 1.0;
+    return 1 / (g * (1 - beta));
+  }
+
+  function dopplerRear(beta, g) {
+    if (beta < 1e-6) return 1.0;
+    return 1 / (g * (1 + beta));
+  }
+
+  function halfSkyCone(beta) {
+    if (beta < 1e-6) return 90.0;
+    return Math.acos(beta) * (180 / Math.PI);
+  }
+
+  function getBand(lambda) {
+    if (lambda < 0.01) return { name: 'GAMMA', bg: '#ff4081', fg: '#fff' };
+    if (lambda < 10) return { name: 'X-RAY', bg: '#ba68c8', fg: '#fff' };
+    if (lambda < 380) return { name: 'UV', bg: '#7c4dff', fg: '#fff' };
+    if (lambda <= 750) return { name: 'VIS', bg: '#00e575', fg: '#000' };
+    if (lambda < 1000000) return { name: 'INFRARED', bg: '#ff5252', fg: '#fff' };
+    if (lambda < 1000000000) return { name: 'MICROWAVE', bg: '#ff7043', fg: '#fff' };
+    return { name: 'RADIO', bg: '#ffb74d', fg: '#000' };
+  }
+
+  function fmt(n, dp) { return n.toFixed(dp); }
+
+  function updateTrip() {
+    const tInput = document.getElementById('dashTimeInput');
+    if (!tInput) return;
+    const tEarth = parseFloat(tInput.value) || 0;
+    const tShip = tEarth / currentGamma;
+    const tSaved = Math.max(0, tEarth - tShip);
+    document.getElementById('dShipTripTime').textContent = tShip.toFixed(3) + ' yrs';
+    document.getElementById('dTimeSaved').textContent = '+' + tSaved.toFixed(3) + ' yrs';
+  }
+
+  function updateLength() {
+    const distInput = document.getElementById('dashDistInput');
+    if (!distInput) return;
+    const L = parseFloat(distInput.value) || 0;
+    const Lprime = L / currentGamma;
+    const pct = currentGamma > 0 ? (100 / currentGamma).toFixed(1) : '100.0';
+    document.getElementById('dLRest').textContent = L.toFixed(3) + ' ly';
+    document.getElementById('dLContracted').textContent = Lprime.toFixed(3) + ' ly';
+    document.getElementById('dLRatio').textContent = pct + '% of rest';
+  }
+
+  function updateWavelength() {
+    const wlInput = document.getElementById('dashWlInput');
+    if (!wlInput) return;
+    const wl0 = parseFloat(wlInput.value) || 550;
+    const lfwd = wl0 / currentDfwd;
+    const lrear = wl0 / currentDrear;
+    const bandFwd = getBand(lfwd);
+    const bandRear = getBand(lrear);
+
+    const fwdStr = lfwd < 0.1 ? lfwd.toExponential(2) : lfwd.toFixed(1);
+    const rearStr = lrear > 99999 ? lrear.toExponential(2) : lrear.toFixed(1);
+
+    document.getElementById('dObsFwd').innerHTML = fwdStr + ' nm <span class="spec-badge" style="background:' + bandFwd.bg + ';color:' + bandFwd.fg + '">' + bandFwd.name + '</span>';
+    document.getElementById('dObsRear').innerHTML = rearStr + ' nm <span class="spec-badge" style="background:' + bandRear.bg + ';color:' + bandRear.fg + '">' + bandRear.name + '</span>';
+    document.getElementById('dDopplerFwdVal').textContent = currentDfwd.toFixed(4) + '× (' + (currentDfwd >= 1.0001 ? 'blueshift' : 'rest') + ')';
+  }
+
+  function update(raw) {
+    currentBeta  = raw / 10000;
+    currentGamma = gamma(currentBeta);
+    currentDfwd  = dopplerFwd(currentBeta, currentGamma);
+    currentDrear = dopplerRear(currentBeta, currentGamma);
+    const cone   = halfSkyCone(currentBeta);
+
+    document.getElementById('dashVelDisplay').textContent = fmt(currentBeta, 4) + ' c';
+    document.getElementById('dBeta').textContent          = fmt(currentBeta, 4) + ' c';
+    document.getElementById('dGamma').textContent         = currentGamma < 10000 ? fmt(currentGamma, 4) : currentGamma.toExponential(3);
+    document.getElementById('dDilation').textContent      = fmt(1 / currentGamma, 4) + '×';
+    document.getElementById('dYearShip').textContent      = fmt(1 / currentGamma, 4) + ' yr';
+    document.getElementById('dDfwd').textContent          = currentDfwd < 1000 ? fmt(currentDfwd, 4) + '×' : currentDfwd.toExponential(3) + '×';
+    document.getElementById('dCone').textContent          = fmt(cone, 2) + '°';
+
+    updateTrip();
+    updateLength();
+    updateWavelength();
+
+    // Update active state on preset buttons
+    document.querySelectorAll('#dashVelPresets .preset-btn').forEach(btn => {
+      const v = Number(btn.dataset.v);
+      btn.classList.toggle('active', Math.abs(v - raw) < 50);
+    });
+  }
+
+  const slider = document.getElementById('dashVelSlider');
+  slider.addEventListener('input', () => update(Number(slider.value)));
+
+  // Preset velocity buttons
+  document.querySelectorAll('#dashVelPresets .preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = Number(btn.dataset.v);
+      slider.value = v;
+      update(v);
+    });
+  });
+
+  // Trip duration input
+  const timeInput = document.getElementById('dashTimeInput');
+  if (timeInput) {
+    timeInput.addEventListener('input', updateTrip);
+  }
+
+  // Length distance input and presets
+  const distInput = document.getElementById('dashDistInput');
+  if (distInput) {
+    distInput.addEventListener('input', updateLength);
+  }
+  document.querySelectorAll('.dist-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (distInput) {
+        distInput.value = btn.dataset.dist;
+        updateLength();
+      }
+    });
+  });
+
+  // Wavelength input and presets
+  const wlInput = document.getElementById('dashWlInput');
+  if (wlInput) {
+    wlInput.addEventListener('input', updateWavelength);
+  }
+  document.querySelectorAll('.wl-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (wlInput) {
+        wlInput.value = btn.dataset.wl;
+        document.querySelectorAll('.wl-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateWavelength();
+      }
+    });
+  });
+
+  update(0);
+})();
+</script>
+
+</body>
+</html>
